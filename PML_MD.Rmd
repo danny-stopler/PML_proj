@@ -5,12 +5,14 @@ date: "Thursday, May 21, 2015"
 output: html_document
 ---
 
+# Quality Activity Recognition 
+For classification only featuers that where defined for all records where selected.
+Tried several models of which GBM gave best accuracy. 
+10 fold cross validation was used with 5 repeats. 
+The expected out of sample error accuracy according test set is 93%.
 
-Selected only featuers that where defined for all records.
-Tried several models of which GBM gave best accuracy
-10 fold cross validation was used with 5 repeats
-The expected out of sample error accuracy according test set is 92%
-
+##  
+## 
 
 ```{r, echo=FALSE}
 require('ggplot2')
@@ -25,6 +27,8 @@ training <- read.csv("pml-training.csv")
 #names(training)
 ```
 
+
+## Features
 
 ```{r, cache=TRUE}
 train_as=data.frame(classe=training$classe);
@@ -59,7 +63,8 @@ train_as$pitch_dumbbell=training$pitch_dumbbell;
 train_as$yaw_dumbbell=training$yaw_dumbbell;
 inTrain = createDataPartition(y=train_as$classe,p=0.75,list=FALSE)
 
-qplot(total_accel_belt,color=classe,data=training,geom='density')
+#qplot(total_accel_belt,color=classe,data=training,geom='density')
+
 featurePlot(x=training[,c('roll_belt','pitch_belt','yaw_belt','total_accel_belt',
   'gyros_belt_x','gyros_belt_y','gyros_belt_z','accel_belt_x','accel_belt_y',
   'accel_belt_z','magnet_belt_x','magnet_belt_y','magnet_belt_z','roll_arm',
@@ -67,24 +72,27 @@ featurePlot(x=training[,c('roll_belt','pitch_belt','yaw_belt','total_accel_belt'
   'accel_arm_x','accel_arm_y','accel_arm_z','magnet_arm_x','magnet_arm_y','magnet_arm_z',
   'roll_dumbbell','pitch_dumbbell','yaw_dumbbell') ],y=training$classe)
 
+```
 
-# GBM
+
+## GBM Calssifier 
+
+```{r, cache=TRUE}
 trai=train_as[inTrain,];
 test=train_as[-inTrain,];
 dim(trai)
 TrainControl <- trainControl(## 10-fold CV
                            method = "repeatedcv",
                            number = 10,
-                           ## repeated ten times
                            repeats = 5)
 set.seed(711)
 gbmodel=train( classe ~ . , data=trai, preProcess=c("center","scale"), 
-              method="gbm", trControl = TrainControl, verbose = FALSE)
+               method="gbm", trControl = TrainControl, verbose = FALSE)
 ```
 
+## Confusion Matrix
 
 ```{r}
 pred=predict(gbmodel,test);
 confusionMatrix(pred,test$classe)
-#confusionMatrix(pred,test$classe)
 ```
