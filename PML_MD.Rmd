@@ -1,0 +1,90 @@
+---
+title: "PML_proj"
+author: "Danny Stopler"
+date: "Thursday, May 21, 2015"
+output: html_document
+---
+
+
+Selected only featuers that where defined for all records.
+Tried several models of which GBM gave best accuracy
+10 fold cross validation was used with 5 repeats
+The expected out of sample error accuracy according test set is 92%
+
+
+```{r, echo=FALSE}
+require('ggplot2')
+require('caret')
+require('e1071')
+```
+
+```{r, echo=FALSE, cache=TRUE}
+setwd("G:/Users/Danny/Documents/papers_home_collection/courses_online/MachineLearningJeffLeek/EDAWork")
+testing <- read.csv("pml-testing.csv")
+training <- read.csv("pml-training.csv")
+#names(training)
+```
+
+
+```{r, cache=TRUE}
+train_as=data.frame(classe=training$classe);
+train_as$roll_belt=training$roll_belt;
+train_as$pitch_belt=training$pitch_belt;
+train_as$yaw_belt=training$yaw_belt;
+train_as$total_accel_belt=training$total_accel_belt;
+train_as$gyros_belt_x=training$gyros_belt_x;
+train_as$gyros_belt_y=training$gyros_belt_y;
+train_as$gyros_belt_z=training$gyros_belt_z;
+train_as$accel_belt_x=training$accel_belt_x;
+train_as$accel_belt_y=training$accel_belt_y;
+train_as$accel_belt_z=training$accel_belt_z
+train_as$magnet_belt_x=training$magnet_belt_x;
+train_as$magnet_belt_y=training$magnet_belt_y;
+train_as$magnet_belt_z=training$magnet_belt_z;
+train_as$roll_arm=training$roll_arm;
+train_as$pitch_arm=training$pitch_arm
+train_as$yaw_arm=training$yaw_arm;
+train_as$total_accel_arm=training$total_accel_arm;
+train_as$gyros_arm_x=training$gyros_arm_x;
+train_as$gyros_arm_y=training$gyros_arm_y;
+train_as$gyros_arm_z=training$gyros_arm_z;
+train_as$accel_arm_x=training$accel_arm_x;
+train_as$accel_arm_y=training$accel_arm_y;
+train_as$accel_arm_z=training$accel_arm_z;
+train_as$magnet_arm_x=training$magnet_arm_x;
+train_as$magnet_arm_y=training$magnet_arm_y;
+train_as$magnet_arm_z=training$magnet_arm_z;
+train_as$roll_dumbbell=training$roll_dumbbell;
+train_as$pitch_dumbbell=training$pitch_dumbbell;
+train_as$yaw_dumbbell=training$yaw_dumbbell;
+inTrain = createDataPartition(y=train_as$classe,p=0.75,list=FALSE)
+
+qplot(total_accel_belt,color=classe,data=training,geom='density')
+featurePlot(x=training[,c('roll_belt','pitch_belt','yaw_belt','total_accel_belt',
+  'gyros_belt_x','gyros_belt_y','gyros_belt_z','accel_belt_x','accel_belt_y',
+  'accel_belt_z','magnet_belt_x','magnet_belt_y','magnet_belt_z','roll_arm',
+  'pitch_arm','yaw_arm','total_accel_arm','gyros_arm_x','gyros_arm_y','gyros_arm_z',
+  'accel_arm_x','accel_arm_y','accel_arm_z','magnet_arm_x','magnet_arm_y','magnet_arm_z',
+  'roll_dumbbell','pitch_dumbbell','yaw_dumbbell') ],y=training$classe)
+
+
+# GBM
+trai=train_as[inTrain,];
+test=train_as[-inTrain,];
+dim(trai)
+TrainControl <- trainControl(## 10-fold CV
+                           method = "repeatedcv",
+                           number = 10,
+                           ## repeated ten times
+                           repeats = 5)
+set.seed(711)
+gbmodel=train( classe ~ . , data=trai, preProcess=c("center","scale"), 
+              method="gbm", trControl = TrainControl, verbose = FALSE)
+```
+
+
+```{r}
+pred=predict(gbmodel,test);
+confusionMatrix(pred,test$classe)
+#confusionMatrix(pred,test$classe)
+```
