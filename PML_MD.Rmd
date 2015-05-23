@@ -9,7 +9,7 @@ output: html_document
 For classification only featuers that where defined for all records where selected.
 Tried several models of which GBM gave best accuracy. 
 10 fold cross validation was used with 5 repeats. 
-The expected out of sample error accuracy according test set is 93%.
+The expected out of sample error accuracy according test set is 91.5%.
 
 ##  
 ## 
@@ -96,3 +96,8 @@ gbmodel=train( classe ~ . , data=trai, preProcess=c("center","scale"),
 pred=predict(gbmodel,test);
 confusionMatrix(pred,test$classe)
 ```
+
+
+
+
+
