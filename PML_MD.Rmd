@@ -5,11 +5,9 @@ date: "Thursday, May 21, 2015"
 output: html_document
 ---
 
-# Quality Activity Recognition 
-For classification only featuers that where defined for all records where selected.
-Tried several models of which GBM gave best accuracy. 
-10 fold cross validation was used with 5 repeats. 
-The expected out of sample error accuracy according test set is 91.5%.
+# Activity Quality Recognition 
+For classification only featuers that where well defined for all records where selected. Tried several classification models of which GBM gave ~92% accuracy and Random Forest gave best accuracy of 98%. Centering and Scaling was used for preprocessing. 10 fold cross validation was used. 
+The expected out of sample error accuracy according test set is 98%.
 
 ##  
 ## 
@@ -75,28 +73,35 @@ featurePlot(x=training[,c('roll_belt','pitch_belt','yaw_belt','total_accel_belt'
 ```
 
 
-## GBM Calssifier 
+## Random Forest Classifier 
 
 ```{r, cache=TRUE}
 trai=train_as[inTrain,];
 test=train_as[-inTrain,];
 dim(trai)
 TrainControl <- trainControl(## 10-fold CV
-                           method = "repeatedcv",
-                           number = 10,
-                           repeats = 5)
+                           method = "cv",
+                           number = 10)
 set.seed(711)
-gbmodel=train( classe ~ . , data=trai, preProcess=c("center","scale"), 
-               method="gbm", trControl = TrainControl, verbose = FALSE)
+
+rfmodel=train( classe ~ . , data=trai, preProcess=c("center","scale"), 
+               method="rf", trControl = TrainControl, verbose = FALSE) # 98%
+
+#gbmodel=train( classe ~ . , data=trai, preProcess=c("center","scale"), 
+#               method="gbm", verbose = FALSE) # 92%
+
 ```
 
 ## Confusion Matrix
 
 ```{r}
-pred=predict(gbmodel,test);
+pred=predict(rfmodel,test);
 confusionMatrix(pred,test$classe)
 ```
-
+```{r}
+#pred=predict(gbmodel,test);
+#confusionMatrix(pred,test$classe)
+```
 
 
 
