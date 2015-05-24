@@ -82,21 +82,29 @@ trai=train_as[inTrain,];
 test=train_as[-inTrain,];
 dim(trai)
 TrainControl <- trainControl(## 10-fold CV
-                           method = "repeatedcv",
-                           number = 10,
-                           repeats = 5)
+                           method = "cv",
+                           number = 10)
 set.seed(711)
-gbmodel=train( classe ~ . , data=trai, preProcess=c("center","scale"), 
-               method="gbm", trControl = TrainControl, verbose = FALSE)
+
+rfmodel=train( classe ~ . , data=trai, preProcess=c("center","scale"), 
+               method="rf", verbose = FALSE) # 98%
+#               method="rf", trControl = TrainControl, verbose = FALSE) # 98%
+
+#gbmodel=train( classe ~ . , data=trai, preProcess=c("center","scale"), 
+#               method="gbm", verbose = FALSE) # 92%
+
 ```
 
 ## Confusion Matrix
 
 ```{r}
-pred=predict(gbmodel,test);
+pred=predict(rfmodel,test);
 confusionMatrix(pred,test$classe)
 ```
-
+```{r}
+#pred=predict(gbmodel,test);
+#confusionMatrix(pred,test$classe)
+```
 
 
 
